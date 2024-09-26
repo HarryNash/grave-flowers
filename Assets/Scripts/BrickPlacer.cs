@@ -1,17 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BrickPlacer : MonoBehaviour
 {
     private Vector3 BlockPosition = new Vector3(-100, -100, -100);
+    private float blockSize = .2f;
 
     // Start is called before the first frame update
     void Start() { }
 
     public void SpawnCube(Vector3 position)
     {
-        Vector3 loweredPosition = new Vector3(position.x, -0.51f, position.z);
+        Vector3 loweredPosition = new Vector3(position.x, blockSize * -0.5f, position.z);
         // Create a cube at the given position with default rotation
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.position = loweredPosition;
@@ -19,7 +18,11 @@ public class BrickPlacer : MonoBehaviour
         Destroy(cube.GetComponent<Collider>());
 
         // Optional: Set the size of the cube (scaling)
-        cube.transform.localScale = new Vector3(1, 1, 1);
+        cube.transform.localScale = new Vector3(
+            blockSize - 0.01f,
+            blockSize - 0.01f,
+            blockSize - 0.01f
+        );
 
         // Optional: Set the color of the cube's material (requires a Renderer component)
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
@@ -36,14 +39,25 @@ public class BrickPlacer : MonoBehaviour
     {
         Vector3 position = transform.position;
         Vector3 nearestGriddedPosition = new Vector3(
-            RoundToNearestMultipleOfX(position.x, 1f),
-            RoundToNearestMultipleOfX(position.y, 1f),
-            RoundToNearestMultipleOfX(position.z, 1f)
+            RoundToNearestMultipleOfX(position.x, blockSize),
+            RoundToNearestMultipleOfX(position.y, blockSize),
+            RoundToNearestMultipleOfX(position.z, blockSize)
         );
         if (nearestGriddedPosition != BlockPosition)
         {
-            BlockPosition = nearestGriddedPosition;
-            SpawnCube(BlockPosition);
+            for (int i = -4; i < 5; i++)
+            {
+                for (int j = -4; j < 5; j++)
+                {
+                    BlockPosition = nearestGriddedPosition;
+                    Vector3 eachBrickPosition = new Vector3(
+                        BlockPosition.x + i * blockSize,
+                        BlockPosition.y,
+                        BlockPosition.z + j * blockSize
+                    );
+                    SpawnCube(eachBrickPosition);
+                }
+            }
         }
     }
 }
