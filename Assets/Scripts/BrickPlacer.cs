@@ -6,45 +6,42 @@ public class BrickPlacer : MonoBehaviour
 {
     public float BlockSize = .2f;
     public float CircleRadius = 6.0f;
-    public float minSpeed = 2f;
-    public float maxSpeed = 7f;
-    public float minDuration = 0.5f;
-    public float maxDuration = 2f;
-    public float minYStart = -20f;
-    public float maxYStart = -10f;
+    public float MinDuration = 0.5f;
+    public float MaxDuration = 2f;
+    public float MinYStart = -20f;
+    public float MaxYStart = -10f;
+    public float groutingWidth = 0.01f;
 
-    private Vector3 BlockPosition = new Vector3(-100, -100, -100);
-    private Dictionary<Vector3, GameObject> activeBlocks = new Dictionary<Vector3, GameObject>();
+    private Vector3 KeystonePosition = new Vector3(-100, -100, -100);
+    private Dictionary<Vector3, GameObject> ActiveBlocks = new Dictionary<Vector3, GameObject>();
 
     public void SpawnCube(Vector3 position)
     {
-        if (activeBlocks.ContainsKey(position))
+        if (ActiveBlocks.ContainsKey(position))
         {
             return;
         }
 
-        float yStart = Random.Range(minYStart, maxYStart);
-        Vector3 loweredPosition = new Vector3(position.x, yStart, position.z);
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.position = loweredPosition;
+        float yStart = Random.Range(MinYStart, MaxYStart);
+        cube.transform.position = new Vector3(position.x, yStart, position.z);
 
         cube.transform.localScale = new Vector3(
-            BlockSize - 0.01f,
-            BlockSize - 0.01f,
-            BlockSize - 0.01f
+            BlockSize - groutingWidth,
+            BlockSize - groutingWidth,
+            BlockSize - groutingWidth
         );
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
         cubeRenderer.material.color = Color.red;
 
-        activeBlocks[position] = cube;
+        ActiveBlocks[position] = cube;
 
-        float randomSpeed = Random.Range(minSpeed, maxSpeed);
-        float randomDuration = Random.Range(minDuration, maxDuration);
-        StartCoroutine(RiseUp(cube, position, randomSpeed, randomDuration));
+        float randomDuration = Random.Range(MinDuration, MaxDuration);
+        StartCoroutine(RiseUp(cube, position, randomDuration));
     }
 
-    private IEnumerator RiseUp(GameObject cube, Vector3 targetPosition, float speed, float duration)
+    private IEnumerator RiseUp(GameObject cube, Vector3 targetPosition, float duration)
     {
         float elapsedTime = 0f;
         Vector3 startingPosition = cube.transform.position;
@@ -59,7 +56,7 @@ public class BrickPlacer : MonoBehaviour
                 targetPosition,
                 elapsedTime / duration
             );
-            elapsedTime += Time.deltaTime * speed;
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 
@@ -69,20 +66,12 @@ public class BrickPlacer : MonoBehaviour
         }
     }
 
-    private IEnumerator DropDownAndDestroy(
-        GameObject cube,
-        Vector3 position,
-        float speed,
-        float duration
-    )
+    private IEnumerator DropDownAndDestroy(GameObject cube, Vector3 position, float duration)
     {
         float elapsedTime = 0f;
         Vector3 startingPosition = cube.transform.position;
-        Vector3 dropTarget = new Vector3(
-            startingPosition.x,
-            startingPosition.y - BlockSize * 5,
-            startingPosition.z
-        );
+        float yStart = Random.Range(MinYStart, MaxYStart);
+        Vector3 dropTarget = new Vector3(startingPosition.x, yStart, startingPosition.z);
 
         while (elapsedTime < duration)
         {
@@ -94,14 +83,14 @@ public class BrickPlacer : MonoBehaviour
                 dropTarget,
                 elapsedTime / duration
             );
-            elapsedTime += Time.deltaTime * speed;
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 
         if (cube != null)
         {
             Destroy(cube);
-            activeBlocks.Remove(position);
+            ActiveBlocks.Remove(position);
         }
     }
 
@@ -119,11 +108,11 @@ public class BrickPlacer : MonoBehaviour
             RoundToNearestMultipleOfX(position.z, BlockSize)
         );
 
-        if (nearestGriddedPosition != BlockPosition)
+        if (nearestGriddedPosition != KeystonePosition)
         {
             List<Vector3> positionsToRemove = new List<Vector3>();
 
-            foreach (var blockPosition in new List<Vector3>(activeBlocks.Keys))
+            foreach (var blockPosition in new List<Vector3>(ActiveBlocks.Keys))
             {
                 float distance = Vector3.Distance(
                     new Vector3(nearestGriddedPosition.x, 0, nearestGriddedPosition.z),
@@ -132,13 +121,11 @@ public class BrickPlacer : MonoBehaviour
 
                 if (distance > CircleRadius * BlockSize)
                 {
-                    float randomSpeed = Random.Range(minSpeed, maxSpeed);
-                    float randomDuration = Random.Range(minDuration, maxDuration);
+                    float randomDuration = Random.Range(MinDuration, MaxDuration);
                     StartCoroutine(
                         DropDownAndDestroy(
-                            activeBlocks[blockPosition],
+                            ActiveBlocks[blockPosition],
                             blockPosition,
-                            randomSpeed,
                             randomDuration
                         )
                     );
@@ -148,7 +135,10 @@ public class BrickPlacer : MonoBehaviour
 
             foreach (var pos in positionsToRemove)
             {
-                activeBlocks.Remove(pos);
+                if (ActiveBlocks[pos] == null)
+                {
+                    ActiveBlocks.Remove(pos);
+                }
             }
 
             for (int i = Mathf.FloorToInt(-CircleRadius); i <= Mathf.CeilToInt(CircleRadius); i++)
@@ -159,15 +149,15 @@ public class BrickPlacer : MonoBehaviour
                     j++
                 )
                 {
-                    BlockPosition = nearestGriddedPosition;
+                    KeystonePosition = nearestGriddedPosition;
                     Vector3 eachBrickPosition = new Vector3(
-                        BlockPosition.x + i * BlockSize,
-                        BlockPosition.y,
-                        BlockPosition.z + j * BlockSize
+                        KeystonePosition.x + i * BlockSize,
+                        BlockSize * -0.5f,
+                        KeystonePosition.z + j * BlockSize
                     );
 
                     float distanceFromCenter = Vector3.Distance(
-                        new Vector3(BlockPosition.x, 0, BlockPosition.z),
+                        new Vector3(KeystonePosition.x, 0, KeystonePosition.z),
                         new Vector3(eachBrickPosition.x, 0, eachBrickPosition.z)
                     );
 
