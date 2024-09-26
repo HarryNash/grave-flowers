@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BrickPlacer : MonoBehaviour
 {
     private Vector3 BlockPosition = new Vector3(-100, -100, -100);
     private float blockSize = .2f;
+    private List<GameObject> Blocks = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start() { }
@@ -14,6 +16,7 @@ public class BrickPlacer : MonoBehaviour
         // Create a cube at the given position with default rotation
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.position = loweredPosition;
+        Blocks.Add(cube);
 
         Destroy(cube.GetComponent<Collider>());
 
@@ -45,9 +48,14 @@ public class BrickPlacer : MonoBehaviour
         );
         if (nearestGriddedPosition != BlockPosition)
         {
-            for (int i = -4; i < 5; i++)
+            for (int m = Blocks.Count - 1; m >= 0; m--)
             {
-                for (int j = -4; j < 5; j++)
+                Destroy(Blocks[m]);
+                Blocks.RemoveAt(m);
+            }
+            for (int i = -6; i < 7; i++)
+            {
+                for (int j = -6; j < 7; j++)
                 {
                     BlockPosition = nearestGriddedPosition;
                     Vector3 eachBrickPosition = new Vector3(
