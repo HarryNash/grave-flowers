@@ -37,7 +37,23 @@ public class RandomPrefabSpawner : MonoBehaviour
             Vector3 spawnPosition = new Vector3(randomX, planePosition.y, randomZ);
 
             // Instantiate the prefab at the random position
-            Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity);
+            GameObject spawnedPrefab = Instantiate(
+                prefabToSpawn,
+                spawnPosition,
+                Quaternion.identity
+            );
+
+            // Apply random scaling (between 90% and 110%) to the spawned prefab
+            float randomScaleX = Random.Range(0.04f, 0.06f);
+            float randomScaleY = Random.Range(1.4f, 1.6f);
+            float randomScaleZ = Random.Range(0.04f, 0.06f);
+
+            // Set the scale of the spawned prefab
+            spawnedPrefab.transform.localScale = new Vector3(
+                randomScaleX,
+                randomScaleY,
+                randomScaleZ
+            );
         }
     }
 }
