@@ -33,7 +33,8 @@ public class BrickPlacer : MonoBehaviour
         );
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
-        cubeRenderer.material.color = Color.red;
+
+        cubeRenderer.material.color = Random.ColorHSV();
 
         ActiveBlocks[position] = cube;
 
