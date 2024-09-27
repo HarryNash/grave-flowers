@@ -59,6 +59,25 @@ public class BrickPlacer : MonoBehaviour
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
         cubeRenderer.material.color = GetRandomColorNearBase(baseColor, maxColorDistance);
+        cubeRenderer.material.SetFloat("_Smoothness", 0.2f);
+        cubeRenderer.material.SetFloat("_Metallic", 0f);
+
+        // Set the material to Transparent surface type (URP specific keyword)
+        cubeRenderer.material.SetFloat("_Surface", 1.0f); // 0 = Opaque, 1 = Transparent
+        cubeRenderer.material.SetOverrideTag("RenderType", "Transparent");
+        cubeRenderer.material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+        // Enable blending (source alpha and inverse destination alpha for transparency)
+        cubeRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        cubeRenderer.material.SetInt(
+            "_DstBlend",
+            (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
+        );
+
+        // Set the alpha value in the color to control transparency
+        Color color = cubeRenderer.material.color;
+        color.a = 0.5f; // Adjust alpha
+        cubeRenderer.material.color = color;
 
         ActiveBlocks[posKey] = cube;
 
@@ -90,6 +109,10 @@ public class BrickPlacer : MonoBehaviour
                 targetPosition,
                 elapsedTime / duration
             );
+            Renderer cubeRenderer = cube.GetComponent<Renderer>();
+            Color color = cubeRenderer.material.color;
+            color.a = elapsedTime / duration;
+            cubeRenderer.material.color = color;
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -117,6 +140,10 @@ public class BrickPlacer : MonoBehaviour
                 dropTarget,
                 elapsedTime / duration
             );
+            Renderer cubeRenderer = cube.GetComponent<Renderer>();
+            Color color = cubeRenderer.material.color;
+            color.a = 1 - (elapsedTime / duration);
+            cubeRenderer.material.color = color;
             elapsedTime += Time.deltaTime;
             yield return null;
         }
