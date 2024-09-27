@@ -18,7 +18,16 @@ public class BrickPlacer : MonoBehaviour
 
     private string Vector3ToString(Vector3 vector)
     {
-        return $"{vector.x},{vector.y},{vector.z}";
+        float RoundToSignificantFigures(float value, int digits)
+        {
+            if (value == 0)
+                return 0;
+
+            float scale = Mathf.Pow(10, Mathf.Floor(Mathf.Log10(Mathf.Abs(value))) + 1 - digits);
+            return Mathf.Round(value / scale) * scale;
+        }
+
+        return $"{RoundToSignificantFigures(vector.x, 3)},{RoundToSignificantFigures(vector.y, 3)},{RoundToSignificantFigures(vector.z, 3)}";
     }
 
     private Vector3 StringToVector3(string str)
