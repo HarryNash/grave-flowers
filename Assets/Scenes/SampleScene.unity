@@ -512,11 +512,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BlockSize: 0.2
-  CircleRadius: 8
+  CircleRadius: 6
   MinDuration: 0.2
   MaxDuration: 0.4
-  MinYStart: -10
-  MaxYStart: -5
+  MinYStart: -2
+  MaxYStart: -1
   groutingWidth: 0.01
 --- !u!1001 &670109567
 PrefabInstance:

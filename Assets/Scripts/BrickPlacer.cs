@@ -13,11 +13,24 @@ public class BrickPlacer : MonoBehaviour
     public float groutingWidth = 0.01f;
 
     private Vector3 KeystonePosition = new Vector3(-100, -100, -100);
-    private Dictionary<Vector3, GameObject> ActiveBlocks = new Dictionary<Vector3, GameObject>();
+
+    private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
+
+    private string Vector3ToString(Vector3 vector)
+    {
+        return $"{vector.x},{vector.y},{vector.z}";
+    }
+
+    private Vector3 StringToVector3(string str)
+    {
+        string[] values = str.Split(',');
+        return new Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]));
+    }
 
     public void SpawnCube(Vector3 position)
     {
-        if (ActiveBlocks.ContainsKey(position))
+        string posKey = Vector3ToString(position);
+        if (ActiveBlocks.ContainsKey(posKey))
         {
             return;
         }
@@ -33,10 +46,9 @@ public class BrickPlacer : MonoBehaviour
         );
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
-
         cubeRenderer.material.color = Random.ColorHSV();
 
-        ActiveBlocks[position] = cube;
+        ActiveBlocks[posKey] = cube;
 
         float randomDuration = Random.Range(MinDuration, MaxDuration);
         StartCoroutine(RiseUp(cube, position, randomDuration));
@@ -91,7 +103,8 @@ public class BrickPlacer : MonoBehaviour
         if (cube != null)
         {
             Destroy(cube);
-            ActiveBlocks.Remove(position);
+            string posKey = Vector3ToString(position);
+            ActiveBlocks.Remove(posKey);
         }
     }
 
@@ -111,10 +124,11 @@ public class BrickPlacer : MonoBehaviour
 
         if (nearestGriddedPosition != KeystonePosition)
         {
-            List<Vector3> positionsToRemove = new List<Vector3>();
+            List<string> positionsToRemove = new List<string>();
 
-            foreach (var blockPosition in new List<Vector3>(ActiveBlocks.Keys))
+            foreach (var blockPositionKey in new List<string>(ActiveBlocks.Keys))
             {
+                Vector3 blockPosition = StringToVector3(blockPositionKey);
                 float distance = Vector3.Distance(
                     new Vector3(nearestGriddedPosition.x, 0, nearestGriddedPosition.z),
                     new Vector3(blockPosition.x, 0, blockPosition.z)
@@ -125,20 +139,20 @@ public class BrickPlacer : MonoBehaviour
                     float randomDuration = Random.Range(MinDuration, MaxDuration);
                     StartCoroutine(
                         DropDownAndDestroy(
-                            ActiveBlocks[blockPosition],
+                            ActiveBlocks[blockPositionKey],
                             blockPosition,
                             randomDuration
                         )
                     );
-                    positionsToRemove.Add(blockPosition);
+                    positionsToRemove.Add(blockPositionKey);
                 }
             }
 
-            foreach (var pos in positionsToRemove)
+            foreach (var posKey in positionsToRemove)
             {
-                if (ActiveBlocks[pos] == null)
+                if (ActiveBlocks[posKey] == null)
                 {
-                    ActiveBlocks.Remove(pos);
+                    ActiveBlocks.Remove(posKey);
                 }
             }
 
