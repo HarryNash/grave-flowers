@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class BrickPlacer : MonoBehaviour
 {
-    public float BlockSize = .2f;
+    public float BrickWidth = 0.2f;
+    public float BrickHeight = 0.2f;
+    public float BrickDepth = 0.2f;
     public float CircleRadius = 6.0f;
     public float MinDuration = 0.5f;
     public float MaxDuration = 2f;
@@ -49,9 +51,9 @@ public class BrickPlacer : MonoBehaviour
         cube.transform.position = new Vector3(position.x, yStart, position.z);
 
         cube.transform.localScale = new Vector3(
-            BlockSize - groutingWidth,
-            BlockSize - groutingWidth,
-            BlockSize - groutingWidth
+            BrickWidth - groutingWidth,
+            BrickHeight - groutingWidth,
+            BrickDepth - groutingWidth
         );
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
@@ -126,9 +128,9 @@ public class BrickPlacer : MonoBehaviour
     {
         Vector3 position = transform.position;
         Vector3 nearestGriddedPosition = new Vector3(
-            RoundToNearestMultipleOfX(position.x, BlockSize),
-            RoundToNearestMultipleOfX(position.y, BlockSize),
-            RoundToNearestMultipleOfX(position.z, BlockSize)
+            RoundToNearestMultipleOfX(position.x, BrickWidth),
+            RoundToNearestMultipleOfX(position.y, BrickHeight),
+            RoundToNearestMultipleOfX(position.z, BrickDepth)
         );
 
         if (nearestGriddedPosition != KeystonePosition)
@@ -143,7 +145,7 @@ public class BrickPlacer : MonoBehaviour
                     new Vector3(blockPosition.x, 0, blockPosition.z)
                 );
 
-                if (distance > CircleRadius * BlockSize)
+                if (distance > CircleRadius * BrickWidth)
                 {
                     float randomDuration = Random.Range(MinDuration, MaxDuration);
                     StartCoroutine(
@@ -175,9 +177,9 @@ public class BrickPlacer : MonoBehaviour
                 {
                     KeystonePosition = nearestGriddedPosition;
                     Vector3 eachBrickPosition = new Vector3(
-                        KeystonePosition.x + i * BlockSize,
-                        BlockSize * -0.5f,
-                        KeystonePosition.z + j * BlockSize
+                        KeystonePosition.x + i * BrickWidth,
+                        BrickHeight * -0.5f,
+                        KeystonePosition.z + j * BrickDepth
                     );
 
                     float distanceFromCenter = Vector3.Distance(
@@ -185,7 +187,7 @@ public class BrickPlacer : MonoBehaviour
                         new Vector3(eachBrickPosition.x, 0, eachBrickPosition.z)
                     );
 
-                    if (distanceFromCenter <= CircleRadius * BlockSize)
+                    if (distanceFromCenter <= CircleRadius * BrickWidth)
                     {
                         SpawnCube(eachBrickPosition);
                     }

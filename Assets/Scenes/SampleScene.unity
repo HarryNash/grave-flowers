@@ -511,7 +511,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59822f8fea7374142ba44c436aae0ecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BlockSize: 0.2
+  BrickWidth: 0.5
+  BrickHeight: 0.2
+  BrickDepth: 0.3
   CircleRadius: 6
   MinDuration: 0.2
   MaxDuration: 0.4
