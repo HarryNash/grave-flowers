@@ -18,24 +18,24 @@ public class BrickPlacer : MonoBehaviour
 
     private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
 
+    // Change this method to use int representation
     private string Vector3ToString(Vector3 vector)
     {
-        float RoundToSignificantFigures(float value, int digits)
-        {
-            if (value == 0)
-                return 0;
-
-            float scale = Mathf.Pow(10, Mathf.Floor(Mathf.Log10(Mathf.Abs(value))) + 1 - digits);
-            return Mathf.Round(value / scale) * scale;
-        }
-
-        return $"{RoundToSignificantFigures(vector.x, 3)},{RoundToSignificantFigures(vector.y, 3)},{RoundToSignificantFigures(vector.z, 3)}";
+        int x = Mathf.RoundToInt(vector.x * 1000);
+        int y = Mathf.RoundToInt(vector.y * 1000);
+        int z = Mathf.RoundToInt(vector.z * 1000);
+        return $"{x},{y},{z}";
     }
 
+    // Update this method to convert back from int representation
     private Vector3 StringToVector3(string str)
     {
         string[] values = str.Split(',');
-        return new Vector3(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]));
+        return new Vector3(
+            float.Parse(values[0]) / 1000f,
+            float.Parse(values[1]) / 1000f,
+            float.Parse(values[2]) / 1000f
+        );
     }
 
     public void SpawnCube(Vector3 position)
