@@ -14,11 +14,13 @@ public class BrickPlacer : MonoBehaviour
     public float MaxYStart = -10f;
     public float groutingWidth = 0.01f;
 
+    public Color baseColor = Color.red;
+    public float maxColorDistance = 0.5f;
+
     private Vector3 KeystonePosition = new Vector3(-100, -100, -100);
 
     private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
 
-    // Change this method to use int representation
     private string Vector3ToString(Vector3 vector)
     {
         int x = Mathf.RoundToInt(vector.x * 1000);
@@ -27,7 +29,6 @@ public class BrickPlacer : MonoBehaviour
         return $"{x},{y},{z}";
     }
 
-    // Update this method to convert back from int representation
     private Vector3 StringToVector3(string str)
     {
         string[] values = str.Split(',');
@@ -57,12 +58,21 @@ public class BrickPlacer : MonoBehaviour
         );
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
-        cubeRenderer.material.color = Random.ColorHSV();
+        cubeRenderer.material.color = GetRandomColorNearBase(baseColor, maxColorDistance);
 
         ActiveBlocks[posKey] = cube;
 
         float randomDuration = Random.Range(MinDuration, MaxDuration);
         StartCoroutine(RiseUp(cube, position, randomDuration));
+    }
+
+    private Color GetRandomColorNearBase(Color baseColor, float maxDistance)
+    {
+        float r = Mathf.Clamp(baseColor.r + Random.Range(-maxDistance, maxDistance), 0, 1);
+        float g = Mathf.Clamp(baseColor.g + Random.Range(-maxDistance, maxDistance), 0, 1);
+        float b = Mathf.Clamp(baseColor.b + Random.Range(-maxDistance, maxDistance), 0, 1);
+
+        return new Color(r, g, b);
     }
 
     private IEnumerator RiseUp(GameObject cube, Vector3 targetPosition, float duration)

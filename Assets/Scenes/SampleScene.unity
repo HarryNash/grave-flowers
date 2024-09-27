@@ -520,6 +520,8 @@ MonoBehaviour:
   MinYStart: -2
   MaxYStart: -1
   groutingWidth: 0.01
+  baseColor: {r: 0.8490566, g: 0.2525049, b: 0.07609467, a: 1}
+  maxColorDistance: 0.2
 --- !u!1001 &670109567
 PrefabInstance:
   m_ObjectHideFlags: 0
