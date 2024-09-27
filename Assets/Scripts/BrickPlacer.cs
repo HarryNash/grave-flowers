@@ -176,15 +176,15 @@ public class BrickPlacer : MonoBehaviour
                 )
                 {
                     KeystonePosition = nearestGriddedPosition;
-
-                    float offsetX = (j % 2 == 0) ? 0 : BrickWidth / 2;
+                    float zPosition = KeystonePosition.z + j * BrickDepth;
+                    float offsetX =
+                        (Mathf.RoundToInt(zPosition / BrickDepth) % 2 == 0) ? 0 : BrickWidth / 2;
 
                     Vector3 eachBrickPosition = new Vector3(
                         KeystonePosition.x + i * BrickWidth + offsetX,
                         BrickHeight * -0.5f,
-                        KeystonePosition.z + j * BrickDepth
+                        zPosition
                     );
-
                     float distanceFromCenter = Vector3.Distance(
                         new Vector3(KeystonePosition.x, 0, KeystonePosition.z),
                         new Vector3(eachBrickPosition.x, 0, eachBrickPosition.z)
