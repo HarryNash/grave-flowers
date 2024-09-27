@@ -176,8 +176,11 @@ public class BrickPlacer : MonoBehaviour
                 )
                 {
                     KeystonePosition = nearestGriddedPosition;
+
+                    float offsetX = (j % 2 == 0) ? 0 : BrickWidth / 2;
+
                     Vector3 eachBrickPosition = new Vector3(
-                        KeystonePosition.x + i * BrickWidth,
+                        KeystonePosition.x + i * BrickWidth + offsetX,
                         BrickHeight * -0.5f,
                         KeystonePosition.z + j * BrickDepth
                     );
