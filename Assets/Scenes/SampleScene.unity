@@ -520,6 +520,7 @@ MonoBehaviour:
   MinYStart: -2
   MaxYStart: -1
   groutingWidth: 0.01
+  BaseMaterial: {fileID: 2100000, guid: fb33f9c6a0714076baa7313d5521b0ce, type: 2}
   baseColor: {r: 0.8490566, g: 0.2525049, b: 0.07609467, a: 1}
   maxColorDistance: 0.1
 --- !u!1001 &670109567

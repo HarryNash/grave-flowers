@@ -14,6 +14,8 @@ public class BrickPlacer : MonoBehaviour
     public float MaxYStart = -10f;
     public float groutingWidth = 0.01f;
 
+    public Material BaseMaterial;
+
     public Color baseColor = Color.red;
     public float maxColorDistance = 0.5f;
 
@@ -58,9 +60,8 @@ public class BrickPlacer : MonoBehaviour
         );
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
+        cubeRenderer.material = BaseMaterial;
         cubeRenderer.material.color = GetRandomColorNearBase(baseColor, maxColorDistance);
-        cubeRenderer.material.SetFloat("_Smoothness", 0.2f);
-        cubeRenderer.material.SetFloat("_Metallic", 0f);
 
         // Set the material to Transparent surface type (URP specific keyword)
         cubeRenderer.material.SetFloat("_Surface", 1.0f); // 0 = Opaque, 1 = Transparent
@@ -74,10 +75,16 @@ public class BrickPlacer : MonoBehaviour
             (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
         );
 
-        // Set the alpha value in the color to control transparency
-        Color color = cubeRenderer.material.color;
-        color.a = 0.5f; // Adjust alpha
-        cubeRenderer.material.color = color;
+        Vector2 randomOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
+
+        // Initialize the MaterialPropertyBlock
+        MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+
+        // Set the random offset for the _BaseMap_ST property, specific to URP shaders
+        propertyBlock.SetVector("_BaseMap_ST", new Vector4(1, 1, randomOffset.x, randomOffset.y));
+
+        // Apply the property block to the renderer
+        cubeRenderer.SetPropertyBlock(propertyBlock);
 
         ActiveBlocks[posKey] = cube;
 
