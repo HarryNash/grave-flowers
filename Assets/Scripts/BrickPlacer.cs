@@ -166,7 +166,7 @@ public class BrickPlacer : MonoBehaviour
         Vector3 position = transform.position;
         Vector3 nearestGriddedPosition = new Vector3(
             RoundToNearestMultipleOfX(position.x, BrickWidth),
-            0,
+            RoundToNearestMultipleOfX(position.y, BrickHeight),
             RoundToNearestMultipleOfX(position.z, BrickDepth)
         );
 
