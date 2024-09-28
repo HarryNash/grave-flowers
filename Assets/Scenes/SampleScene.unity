@@ -514,7 +514,7 @@ MonoBehaviour:
   BrickWidth: 0.5
   BrickHeight: 0.2
   BrickDepth: 0.3
-  CircleRadius: 6
+  CircleRadius: 3
   MinDuration: 0.2
   MaxDuration: 0.4
   MinYStart: -2
