@@ -177,12 +177,9 @@ public class BrickPlacer : MonoBehaviour
             foreach (var blockPositionKey in new List<string>(ActiveBlocks.Keys))
             {
                 Vector3 blockPosition = StringToVector3(blockPositionKey);
-                float distance = Vector3.Distance(
-                    new Vector3(nearestGriddedPosition.x, 0, nearestGriddedPosition.z),
-                    new Vector3(blockPosition.x, 0, blockPosition.z)
-                );
+                float distance = Vector3.Distance(nearestGriddedPosition, blockPosition);
 
-                if (distance > CircleRadius * BrickWidth)
+                if (distance > CircleRadius)
                 {
                     float randomDuration = Random.Range(MinDuration, MaxDuration);
                     StartCoroutine(
@@ -204,13 +201,9 @@ public class BrickPlacer : MonoBehaviour
                 }
             }
 
-            for (int i = Mathf.FloorToInt(-CircleRadius); i <= Mathf.CeilToInt(CircleRadius); i++)
+            for (int i = -20; i <= 20; i++)
             {
-                for (
-                    int j = Mathf.FloorToInt(-CircleRadius);
-                    j <= Mathf.CeilToInt(CircleRadius);
-                    j++
-                )
+                for (int j = -20; j <= 20; j++)
                 {
                     KeystonePosition = nearestGriddedPosition;
                     float zPosition = KeystonePosition.z + j * BrickDepth;
@@ -223,11 +216,11 @@ public class BrickPlacer : MonoBehaviour
                         zPosition
                     );
                     float distanceFromCenter = Vector3.Distance(
-                        new Vector3(KeystonePosition.x, 0, KeystonePosition.z),
-                        new Vector3(eachBrickPosition.x, 0, eachBrickPosition.z)
+                        KeystonePosition,
+                        eachBrickPosition
                     );
 
-                    if (distanceFromCenter <= CircleRadius * BrickWidth)
+                    if (distanceFromCenter <= CircleRadius)
                     {
                         SpawnCube(eachBrickPosition);
                     }
