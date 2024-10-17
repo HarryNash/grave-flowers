@@ -14,14 +14,33 @@ public class BrickPlacer : MonoBehaviour
     public float MaxYStart = -10f;
     public float groutingWidth = 0.01f;
 
+    [Range(0f, 1f)]
+    public float minVolume = 0.1f;
+
+    [Range(0f, 1f)]
+    public float maxVolume = 0.3f;
+
+    [Range(0.5f, 2f)]
+    public float minPitch = 0.7f;
+
+    [Range(0.5f, 2f)]
+    public float maxPitch = 1.3f;
+
     public Material BaseMaterial;
+    public AudioClip BrickSound;
 
     public Color baseColor = Color.red;
     public float maxColorDistance = 0.5f;
 
     private Vector3 KeystonePosition = new Vector3(-100, -100, -100);
-
+    private AudioSource audioSource;
     private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = BrickSound;
+    }
 
     private string Vector3ToString(Vector3 vector)
     {
@@ -154,7 +173,9 @@ public class BrickPlacer : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-
+        audioSource.volume = Random.Range(minVolume, maxVolume);
+        audioSource.pitch = Random.Range(minPitch, maxPitch);
+        audioSource.PlayOneShot(BrickSound);
         if (cube != null)
         {
             Destroy(cube);
