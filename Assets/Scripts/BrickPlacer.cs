@@ -93,6 +93,41 @@ public class BrickPlacer : MonoBehaviour
         return false;
     }
 
+    private float GetNearestHoleDistance(Vector3 position)
+    {
+        float minDistance = float.MaxValue;
+
+        foreach (var hole in holes)
+        {
+            float distanceToCenter = Vector3.Distance(
+                new Vector3(position.x, 0, position.z),
+                hole.center
+            );
+            float distanceToEdge = Mathf.Max(0, distanceToCenter - hole.radius); // Distance to hole's edge
+
+            if (distanceToEdge < minDistance)
+            {
+                minDistance = distanceToEdge;
+            }
+        }
+
+        return minDistance;
+    }
+
+    private Color GetBrickColorBasedOnHoleProximity(Vector3 position)
+    {
+        float nearestDistance = GetNearestHoleDistance(position);
+        float normalizedDistance = Mathf.Clamp01(nearestDistance / maxHoleRadius);
+
+        // Lerp between dark color and base color
+        Color darkColor = Color.black; // Very dark color at the edge of the hole
+        return Color.Lerp(
+            darkColor,
+            GetRandomColorNearBase(baseColor, maxColorDistance),
+            normalizedDistance
+        );
+    }
+
     public void SpawnCube(Vector3 position)
     {
         if (IsInsideHole(position))
@@ -116,8 +151,12 @@ public class BrickPlacer : MonoBehaviour
 
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
         cubeRenderer.material = BaseMaterial;
-        cubeRenderer.material.color = GetRandomColorNearBase(baseColor, maxColorDistance);
 
+        // Adjust color based on proximity to nearest hole
+        Color brickColor = GetBrickColorBasedOnHoleProximity(position);
+        cubeRenderer.material.color = brickColor;
+
+        // Set up transparency material properties
         cubeRenderer.material.SetFloat("_Surface", 1.0f); // Transparent material
         cubeRenderer.material.SetOverrideTag("RenderType", "Transparent");
         cubeRenderer.material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
