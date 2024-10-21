@@ -32,7 +32,6 @@ public class BrickPlacer : MonoBehaviour
     public Color baseColor = Color.red;
     public float maxColorDistance = 0.5f;
 
-    private Vector3 KeystonePosition = new Vector3(-100, -100, -100);
     private AudioSource audioSource;
     private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
 
@@ -198,60 +197,56 @@ public class BrickPlacer : MonoBehaviour
             RoundToNearestMultipleOfX(position.z, BrickDepth)
         );
 
-        if (nearestGriddedPosition != KeystonePosition)
+        List<string> positionsToRemove = new List<string>();
+
+        foreach (var blockPositionKey in new List<string>(ActiveBlocks.Keys))
         {
-            List<string> positionsToRemove = new List<string>();
+            Vector3 blockPosition = StringToVector3(blockPositionKey);
+            float distance = Vector3.Distance(nearestGriddedPosition, blockPosition);
 
-            foreach (var blockPositionKey in new List<string>(ActiveBlocks.Keys))
+            if (distance > CircleRadius)
             {
-                Vector3 blockPosition = StringToVector3(blockPositionKey);
-                float distance = Vector3.Distance(nearestGriddedPosition, blockPosition);
-
-                if (distance > CircleRadius)
-                {
-                    float randomDuration = Random.Range(MinDuration, MaxDuration);
-                    StartCoroutine(
-                        DropDownAndDestroy(
-                            ActiveBlocks[blockPositionKey],
-                            blockPosition,
-                            randomDuration
-                        )
-                    );
-                    positionsToRemove.Add(blockPositionKey);
-                }
+                float randomDuration = Random.Range(MinDuration, MaxDuration);
+                StartCoroutine(
+                    DropDownAndDestroy(
+                        ActiveBlocks[blockPositionKey],
+                        blockPosition,
+                        randomDuration
+                    )
+                );
+                positionsToRemove.Add(blockPositionKey);
             }
+        }
 
-            foreach (var posKey in positionsToRemove)
+        foreach (var posKey in positionsToRemove)
+        {
+            if (ActiveBlocks[posKey] == null)
             {
-                if (ActiveBlocks[posKey] == null)
-                {
-                    ActiveBlocks.Remove(posKey);
-                }
+                ActiveBlocks.Remove(posKey);
             }
+        }
 
-            for (int i = -20; i <= 20; i++)
+        for (int i = -20; i <= 20; i++)
+        {
+            for (int j = -20; j <= 20; j++)
             {
-                for (int j = -20; j <= 20; j++)
+                float zPosition = nearestGriddedPosition.z + j * BrickDepth;
+                float offsetX =
+                    (Mathf.RoundToInt(zPosition / BrickDepth) % 2 == 0) ? 0 : BrickWidth / 2;
+
+                Vector3 eachBrickPosition = new Vector3(
+                    nearestGriddedPosition.x + i * BrickWidth + offsetX,
+                    BrickHeight * -0.5f,
+                    zPosition
+                );
+                float distanceFromCenter = Vector3.Distance(
+                    nearestGriddedPosition,
+                    eachBrickPosition
+                );
+
+                if (distanceFromCenter <= CircleRadius)
                 {
-                    KeystonePosition = nearestGriddedPosition;
-                    float zPosition = KeystonePosition.z + j * BrickDepth;
-                    float offsetX =
-                        (Mathf.RoundToInt(zPosition / BrickDepth) % 2 == 0) ? 0 : BrickWidth / 2;
-
-                    Vector3 eachBrickPosition = new Vector3(
-                        KeystonePosition.x + i * BrickWidth + offsetX,
-                        BrickHeight * -0.5f,
-                        zPosition
-                    );
-                    float distanceFromCenter = Vector3.Distance(
-                        KeystonePosition,
-                        eachBrickPosition
-                    );
-
-                    if (distanceFromCenter <= CircleRadius)
-                    {
-                        SpawnCube(eachBrickPosition);
-                    }
+                    SpawnCube(eachBrickPosition);
                 }
             }
         }
