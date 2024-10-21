@@ -49,6 +49,7 @@ public class BrickPlacer : MonoBehaviour
 
         // Create holes at random positions within the CircleRadius
         GenerateHoles();
+        holes.Add(new Hole(new Vector3(0, 0, -50), 10));
     }
 
     // Struct to represent a hole
