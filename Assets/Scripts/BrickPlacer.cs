@@ -28,39 +28,76 @@ public class BrickPlacer : MonoBehaviour
 
     public Material BaseMaterial;
     public AudioClip BrickSound;
-
     public Color baseColor = Color.red;
     public float maxColorDistance = 0.5f;
 
     private AudioSource audioSource;
     private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
 
+    // Hole configuration
+    public float HoleRadius = 100f;
+    public int numberOfHoles = 5; // Number of holes
+    public float minHoleRadius = 1f; // Minimum hole radius
+    public float maxHoleRadius = 3f; // Maximum hole radius
+
+    private List<Hole> holes = new List<Hole>(); // List of holes
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = BrickSound;
+
+        // Create holes at random positions within the CircleRadius
+        GenerateHoles();
     }
 
-    private string Vector3ToString(Vector3 vector)
+    // Struct to represent a hole
+    private struct Hole
     {
-        int x = Mathf.RoundToInt(vector.x * 1000);
-        int y = Mathf.RoundToInt(vector.y * 1000);
-        int z = Mathf.RoundToInt(vector.z * 1000);
-        return $"{x},{y},{z}";
+        public Vector3 center;
+        public float radius;
+
+        public Hole(Vector3 center, float radius)
+        {
+            this.center = center;
+            this.radius = radius;
+        }
     }
 
-    private Vector3 StringToVector3(string str)
+    private void GenerateHoles()
     {
-        string[] values = str.Split(',');
-        return new Vector3(
-            float.Parse(values[0]) / 1000f,
-            float.Parse(values[1]) / 1000f,
-            float.Parse(values[2]) / 1000f
-        );
+        for (int i = 0; i < numberOfHoles; i++)
+        {
+            // Random position within HoleRadius around (0, 0, 0)
+            Vector3 randomPosition = new Vector3(
+                Random.Range(-HoleRadius, HoleRadius),
+                0, // Keep the holes on the XZ plane
+                Random.Range(-HoleRadius, HoleRadius)
+            );
+
+            float holeRadius = Random.Range(minHoleRadius, maxHoleRadius);
+            holes.Add(new Hole(randomPosition, holeRadius));
+        }
+    }
+
+    private bool IsInsideHole(Vector3 position)
+    {
+        foreach (var hole in holes)
+        {
+            float distance = Vector3.Distance(new Vector3(position.x, 0, position.z), hole.center);
+            if (distance <= hole.radius)
+            {
+                return true; // Position is inside a hole
+            }
+        }
+        return false;
     }
 
     public void SpawnCube(Vector3 position)
     {
+        if (IsInsideHole(position))
+            return; // Skip spawning if inside a hole
+
         string posKey = Vector3ToString(position);
         if (ActiveBlocks.ContainsKey(posKey))
         {
@@ -81,33 +118,42 @@ public class BrickPlacer : MonoBehaviour
         cubeRenderer.material = BaseMaterial;
         cubeRenderer.material.color = GetRandomColorNearBase(baseColor, maxColorDistance);
 
-        // Set the material to Transparent surface type (URP specific keyword)
-        cubeRenderer.material.SetFloat("_Surface", 1.0f); // 0 = Opaque, 1 = Transparent
+        cubeRenderer.material.SetFloat("_Surface", 1.0f); // Transparent material
         cubeRenderer.material.SetOverrideTag("RenderType", "Transparent");
         cubeRenderer.material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-
-        // Enable blending (source alpha and inverse destination alpha for transparency)
         cubeRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
         cubeRenderer.material.SetInt(
             "_DstBlend",
             (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
         );
 
-        Vector2 randomOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
-
-        // Initialize the MaterialPropertyBlock
         MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
-
-        // Set the random offset for the _BaseMap_ST property, specific to URP shaders
+        Vector2 randomOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
         propertyBlock.SetVector("_BaseMap_ST", new Vector4(1, 1, randomOffset.x, randomOffset.y));
-
-        // Apply the property block to the renderer
         cubeRenderer.SetPropertyBlock(propertyBlock);
 
         ActiveBlocks[posKey] = cube;
 
         float randomDuration = Random.Range(MinDuration, MaxDuration);
         StartCoroutine(RiseUp(cube, position, randomDuration));
+    }
+
+    private string Vector3ToString(Vector3 vector)
+    {
+        int x = Mathf.RoundToInt(vector.x * 1000);
+        int y = Mathf.RoundToInt(vector.y * 1000);
+        int z = Mathf.RoundToInt(vector.z * 1000);
+        return $"{x},{y},{z}";
+    }
+
+    private Vector3 StringToVector3(string str)
+    {
+        string[] values = str.Split(',');
+        return new Vector3(
+            float.Parse(values[0]) / 1000f,
+            float.Parse(values[1]) / 1000f,
+            float.Parse(values[2]) / 1000f
+        );
     }
 
     private Color GetRandomColorNearBase(Color baseColor, float maxDistance)
@@ -188,7 +234,7 @@ public class BrickPlacer : MonoBehaviour
         return Mathf.RoundToInt(number / x) * x;
     }
 
-    void Update()
+    private void Update()
     {
         Vector3 position = transform.position;
         Vector3 nearestGriddedPosition = new Vector3(
@@ -239,6 +285,7 @@ public class BrickPlacer : MonoBehaviour
                     BrickHeight * -0.5f,
                     zPosition
                 );
+
                 float distanceFromCenter = Vector3.Distance(
                     nearestGriddedPosition,
                     eachBrickPosition
