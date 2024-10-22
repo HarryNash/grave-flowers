@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BrickPlacer : MonoBehaviour
 {
@@ -44,6 +45,17 @@ public class BrickPlacer : MonoBehaviour
     public float proximityRadius = 5f; // Distance at which the light dims and sound plays
     private int objectsCollected = 0;
 
+    public float playSoundYThreshold = -10f; // The Y level below which to play the sound
+    public float resetSceneYThreshold = -30f; // The Y level below which the scene will reset
+
+    // Variables for audio
+    public AudioClip fallSound; // Assign this in the Inspector
+    private bool soundPlayed = false; // To avoid playing sound multiple times
+    private AudioSource audioSourceFall;
+
+    public float reductionAmount = 0.1f; // The amount by which to reduce the radius each second
+    private Coroutine radiusReductionRoutine; // Reference to the running radius reduction coroutine
+
     // Hole configuration
     public float HoleRadius = 100f;
     public int numberOfHoles = 5; // Number of holes
@@ -56,7 +68,7 @@ public class BrickPlacer : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
-
+        audioSourceFall = gameObject.AddComponent<AudioSource>();
         // Create holes at random positions within the CircleRadius
         GenerateHoles();
         SpawnObjects();
@@ -347,7 +359,29 @@ public class BrickPlacer : MonoBehaviour
 
             // Increment the collected counter
             objectsCollected++;
+
+            // Check if the collected objects exceed half of the totalObjects
+            if (objectsCollected > totalObjects / 2)
+            {
+                // Start reducing the radius if it's not already being reduced
+                if (radiusReductionRoutine == null)
+                {
+                    radiusReductionRoutine = StartCoroutine(ReduceCircleRadius());
+                }
+            }
         }
+    }
+
+    private IEnumerator ReduceCircleRadius()
+    {
+        while (CircleRadius > 0)
+        {
+            CircleRadius = Mathf.Max(0, CircleRadius - reductionAmount); // Reduce the radius, but never below 0
+            yield return new WaitForSeconds(1f); // Wait for 1 second before the next reduction
+        }
+
+        // Once the radius reaches 0, stop the coroutine
+        radiusReductionRoutine = null;
     }
 
     private void Update()
@@ -412,6 +446,23 @@ public class BrickPlacer : MonoBehaviour
                     SpawnCube(eachBrickPosition);
                 }
             }
+        }
+
+        if (transform.position.y < playSoundYThreshold && !soundPlayed)
+        {
+            // Play the sound and mark it as played
+            if (audioSource != null && fallSound != null)
+            {
+                audioSourceFall.PlayOneShot(fallSound);
+            }
+            soundPlayed = true;
+        }
+
+        // Check if the player has fallen below the reset threshold
+        if (transform.position.y < resetSceneYThreshold)
+        {
+            // Reload the current scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }
