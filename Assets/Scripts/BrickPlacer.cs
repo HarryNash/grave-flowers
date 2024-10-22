@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class BrickPlacer : MonoBehaviour
 {
@@ -32,6 +33,10 @@ public class BrickPlacer : MonoBehaviour
 
     [Range(0.5f, 2f)]
     public float maxPitch = 1.3f;
+
+    public Image fadeImage; // Reference to the FadeImage
+    public float fadeDuration = 2.0f; // Duration of the fade
+    public string nextScene; // Name of the next scene to load
 
     public Material BaseMaterial;
     public AudioClip BrickSound;
@@ -368,6 +373,28 @@ public class BrickPlacer : MonoBehaviour
                 {
                     radiusReductionRoutine = StartCoroutine(ReduceCircleRadius());
                 }
+            }
+
+            if (objectsCollected >= totalObjects)
+            {
+                // Set the initial color of the fade image to fully transparent
+                Color color = fadeImage.color;
+                color.a = 0;
+                fadeImage.color = color;
+
+                // Fade to black
+                float elapsedTime = 0f;
+                while (elapsedTime < fadeDuration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    color.a = Mathf.Clamp01(elapsedTime / fadeDuration);
+                    fadeImage.color = color;
+                }
+
+                // Ensure the image is fully opaque
+                color.a = 1;
+                fadeImage.color = color;
+                SceneManager.LoadScene(nextScene);
             }
         }
     }
