@@ -14,6 +14,12 @@ public class BrickPlacer : MonoBehaviour
     public float MaxYStart = -10f;
     public float groutingWidth = 0.01f;
 
+    public GameObject[] SpecialObjects; // Prefabs of objects to spawn
+    public float objectRadius = 5f; // Radius to avoid holes around objects
+    public int totalObjects = 3; // Number of special objects
+    private List<GameObject> spawnedObjects = new List<GameObject>();
+    public Light glowLightPrefab; // Light prefab for glowing effect
+
     [Range(0f, 1f)]
     public float minVolume = 0.1f;
 
@@ -34,6 +40,9 @@ public class BrickPlacer : MonoBehaviour
     private AudioSource audioSource;
     private Dictionary<string, GameObject> ActiveBlocks = new Dictionary<string, GameObject>();
 
+    public float proximityRadius = 5f; // Distance at which the light dims and sound plays
+    private int objectsCollected = 0;
+
     // Hole configuration
     public float HoleRadius = 100f;
     public int numberOfHoles = 5; // Number of holes
@@ -49,7 +58,7 @@ public class BrickPlacer : MonoBehaviour
 
         // Create holes at random positions within the CircleRadius
         GenerateHoles();
-        holes.Add(new Hole(new Vector3(0, 0, -50), 10));
+        SpawnObjects();
     }
 
     // Struct to represent a hole
@@ -78,6 +87,36 @@ public class BrickPlacer : MonoBehaviour
 
             float holeRadius = Random.Range(minHoleRadius, maxHoleRadius);
             holes.Add(new Hole(randomPosition, holeRadius));
+        }
+    }
+
+    private void SpawnObjects()
+    {
+        for (int i = 0; i < totalObjects; i++)
+        {
+            Vector3 randomPosition;
+            do
+            {
+                randomPosition = new Vector3(
+                    Random.Range(-HoleRadius, HoleRadius),
+                    0.75f,
+                    Random.Range(-HoleRadius, HoleRadius)
+                );
+            } while (IsInsideHole(randomPosition));
+
+            // Instantiate the special object
+            GameObject obj = Instantiate(SpecialObjects[i], randomPosition, Quaternion.identity);
+            spawnedObjects.Add(obj);
+
+            // Add glowing light to the object
+            //Light glow = Instantiate(glowLightPrefab, obj.transform);
+
+            // Reset the glow position to ensure it's exactly at the object's position
+            //glow.transform.localPosition = new Vector3(0, 5, 0);
+            // Add trigger to detect player proximity
+            SphereCollider trigger = obj.AddComponent<SphereCollider>();
+            trigger.isTrigger = true;
+            trigger.radius = proximityRadius;
         }
     }
 
@@ -121,7 +160,7 @@ public class BrickPlacer : MonoBehaviour
         float normalizedDistance = Mathf.Clamp01(nearestDistance / maxHoleRadius);
 
         // Lerp between dark color and base color
-        Color darkColor = Color.black; // Very dark color at the edge of the hole
+        Color darkColor = Color.red; // Very dark color at the edge of the hole
         return Color.Lerp(
             darkColor,
             GetRandomColorNearBase(baseColor, maxColorDistance),
