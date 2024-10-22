@@ -74,6 +74,16 @@ public class BrickPlacer : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+
+        foreach (Hole hole in holes)
+        {
+            Gizmos.DrawSphere(hole.center, hole.radius); // Draw a sphere at each point
+        }
+    }
+
     private void GenerateHoles()
     {
         for (int i = 0; i < numberOfHoles; i++)
