@@ -209,7 +209,7 @@ public class BrickPlacer : MonoBehaviour
 
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         float yStart = Random.Range(MinYStart, MaxYStart);
-        cube.transform.position = new Vector3(position.x, yStart, position.z);
+        cube.transform.position = new Vector3(position.x, 0, position.z);
 
         cube.transform.localScale = new Vector3(
             BrickWidth - groutingWidth,
@@ -242,7 +242,7 @@ public class BrickPlacer : MonoBehaviour
         ActiveBlocks[posKey] = cube;
 
         float randomDuration = Random.Range(MinDuration, MaxDuration);
-        StartCoroutine(RiseUp(cube, position, randomDuration));
+        //StartCoroutine(RiseUp(cube, position, randomDuration));
     }
 
     private string Vector3ToString(Vector3 vector)
