@@ -34,6 +34,7 @@ public class BrickPlacer : MonoBehaviour
 
     public Material BaseMaterial;
     public AudioClip BrickSound;
+    public AudioClip ObjectSound; // Add a sound clip for the disappearing object
     public Color baseColor = Color.red;
     public float maxColorDistance = 0.5f;
 
@@ -54,7 +55,6 @@ public class BrickPlacer : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        audioSource.clip = BrickSound;
 
         // Create holes at random positions within the CircleRadius
         GenerateHoles();
@@ -108,15 +108,19 @@ public class BrickPlacer : MonoBehaviour
             GameObject obj = Instantiate(SpecialObjects[i], randomPosition, Quaternion.identity);
             spawnedObjects.Add(obj);
 
-            // Add glowing light to the object
-            //Light glow = Instantiate(glowLightPrefab, obj.transform);
+            // Add glowing light to the object (optional)
+            // Light glow = Instantiate(glowLightPrefab, obj.transform);
+            // glow.transform.localPosition = new Vector3(0, 5, 0);
 
-            // Reset the glow position to ensure it's exactly at the object's position
-            //glow.transform.localPosition = new Vector3(0, 5, 0);
             // Add trigger to detect player proximity
             SphereCollider trigger = obj.AddComponent<SphereCollider>();
             trigger.isTrigger = true;
             trigger.radius = proximityRadius;
+
+            // Add an AudioSource to the object
+            AudioSource objAudioSource = obj.AddComponent<AudioSource>();
+            objAudioSource.clip = ObjectSound; // Assign the disappearing sound to the object
+            objAudioSource.playOnAwake = false; // Prevent the sound from playing immediately
         }
     }
 
@@ -311,6 +315,27 @@ public class BrickPlacer : MonoBehaviour
     public float RoundToNearestMultipleOfX(float number, float x)
     {
         return Mathf.RoundToInt(number / x) * x;
+    }
+
+    // Add this method to handle the player entering a proximity trigger
+    private void OnTriggerEnter(Collider other)
+    {
+        // Check if it's a special object
+        if (spawnedObjects.Contains(other.gameObject))
+        {
+            // Get the object's AudioSource and play the sound
+            AudioSource objAudioSource = other.gameObject.GetComponent<AudioSource>();
+            if (objAudioSource != null)
+            {
+                objAudioSource.Play();
+            }
+
+            // Destroy the object after a slight delay to allow the sound to finish
+            Destroy(other.gameObject, ObjectSound.length);
+
+            // Increment the collected counter
+            objectsCollected++;
+        }
     }
 
     private void Update()
