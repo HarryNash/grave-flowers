@@ -49,6 +49,7 @@ public class BrickPlacer : MonoBehaviour
     public int numberOfHoles = 5; // Number of holes
     public float minHoleRadius = 1f; // Minimum hole radius
     public float maxHoleRadius = 3f; // Maximum hole radius
+    public float holeBorderFactor = 4f;
 
     private List<Hole> holes = new List<Hole>(); // List of holes
 
@@ -171,7 +172,8 @@ public class BrickPlacer : MonoBehaviour
     private Color GetBrickColorBasedOnHoleProximity(Vector3 position)
     {
         float nearestDistance = GetNearestHoleDistance(position);
-        float normalizedDistance = Mathf.Clamp01(nearestDistance / maxHoleRadius);
+        float normalizedDistance =
+            Mathf.Clamp01(nearestDistance / maxHoleRadius) * holeBorderFactor;
 
         // Lerp between dark color and base color
         Color darkColor = Color.red; // Very dark color at the edge of the hole
