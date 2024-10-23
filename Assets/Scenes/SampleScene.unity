@@ -498,12 +498,12 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a46db651e5851a54d96f569d50d6f561, type: 3}
   - {fileID: 8300000, guid: cf08f2e545e7a7e46802e98b37b4826d, type: 3}
   - {fileID: 8300000, guid: 680c4280c51db9d43868930645de44c5, type: 3}
+  - {fileID: 8300000, guid: 2c3e4fb07c821b04a8bc791f0a972a5a, type: 3}
+  - {fileID: 8300000, guid: 0805ecf3f4be21f4a86b47e394bb0869, type: 3}
   objectPrefabs:
-  - {fileID: 919132149155446097, guid: b3a386c4703eec04f81108c5eacee44a, type: 3}
   - {fileID: 919132149155446097, guid: 5fc866772c4a95e4c852b22a71b3e6aa, type: 3}
   - {fileID: 919132149155446097, guid: f7bcb16bd46ba4f43917100ab56bd81d, type: 3}
   - {fileID: 919132149155446097, guid: 76f129680c4d94c4498bea4b41277e44, type: 3}
-  - {fileID: 919132149155446097, guid: 0b43077ada4b83843ae790c2c0c88444, type: 3}
   - {fileID: 919132149155446097, guid: 3b9228f653dfb924f96b849c112b1237, type: 3}
   - {fileID: 919132149155446097, guid: 9533cac7b7f8e4f42aa9ac444663ad70, type: 3}
   - {fileID: 919132149155446097, guid: 4bc1a21ab0f0bf44e90b6256cabb8e18, type: 3}

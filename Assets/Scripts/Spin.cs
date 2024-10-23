@@ -22,6 +22,9 @@ public class SoundFadeTransition : MonoBehaviour
     private void Start()
     {
         // Start the coroutine to play the sound and handle the transition
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Confined;
         StartCoroutine(PlaySoundAndTransition());
     }
 
