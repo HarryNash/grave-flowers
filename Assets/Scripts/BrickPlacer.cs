@@ -123,6 +123,9 @@ public class BrickPlacer : MonoBehaviour
         for (int i = 0; i < totalObjects; i++)
         {
             Vector3 randomPosition;
+            bool validPosition;
+
+            // Repeat until we find a valid position
             do
             {
                 randomPosition = new Vector3(
@@ -130,7 +133,29 @@ public class BrickPlacer : MonoBehaviour
                     0.75f,
                     Random.Range(-HoleRadius, HoleRadius)
                 );
-            } while (IsInsideHole(randomPosition));
+
+                validPosition = true; // Assume the position is valid initially
+
+                // Ensure the position is not inside the hole
+                if (IsInsideHole(randomPosition))
+                {
+                    validPosition = false;
+                }
+                else
+                {
+                    // Ensure it's not within 20 units of any previously spawned object
+                    foreach (GameObject spawnedObject in spawnedObjects)
+                    {
+                        if (
+                            Vector3.Distance(randomPosition, spawnedObject.transform.position) < 30f
+                        )
+                        {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                }
+            } while (!validPosition);
 
             // Instantiate the special object
             GameObject obj = Instantiate(SpecialObjects[i], randomPosition, Quaternion.identity);
