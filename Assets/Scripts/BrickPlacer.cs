@@ -403,7 +403,6 @@ public class BrickPlacer : MonoBehaviour
             if (objectsCollected >= totalObjects)
             {
                 StartCoroutine(PlaySoundAndTransition());
-                SceneManager.LoadScene(nextScene);
             }
         }
     }
