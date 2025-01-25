@@ -40,7 +40,7 @@ public class BrickPlacer : MonoBehaviour
 
     public Material BaseMaterial;
     public AudioClip BrickSound;
-    public AudioClip ObjectSound; // Add a sound clip for the disappearing object
+    public List<AudioClip> objectSounds;
     public Color baseColor = Color.red;
     public float maxColorDistance = 0.5f;
 
@@ -147,7 +147,7 @@ public class BrickPlacer : MonoBehaviour
                     foreach (GameObject spawnedObject in spawnedObjects)
                     {
                         if (
-                            Vector3.Distance(randomPosition, spawnedObject.transform.position) < 30f
+                            Vector3.Distance(randomPosition, spawnedObject.transform.position) < 33f
                         )
                         {
                             validPosition = false;
@@ -172,7 +172,6 @@ public class BrickPlacer : MonoBehaviour
 
             // Add an AudioSource to the object
             AudioSource objAudioSource = obj.AddComponent<AudioSource>();
-            objAudioSource.clip = ObjectSound; // Assign the disappearing sound to the object
             objAudioSource.playOnAwake = false; // Prevent the sound from playing immediately
         }
     }
@@ -381,11 +380,11 @@ public class BrickPlacer : MonoBehaviour
             AudioSource objAudioSource = other.gameObject.GetComponent<AudioSource>();
             if (objAudioSource != null)
             {
-                objAudioSource.Play();
+                objAudioSource.PlayOneShot(objectSounds[objectsCollected]);
             }
 
             // Destroy the object after a slight delay to allow the sound to finish
-            Destroy(other.gameObject, ObjectSound.length);
+            Destroy(other.gameObject, objectSounds[objectsCollected].length);
 
             // Increment the collected counter
             objectsCollected++;

@@ -370,7 +370,12 @@ MonoBehaviour:
   nextScene: end
   BaseMaterial: {fileID: 2100000, guid: fb33f9c6a0714076baa7313d5521b0ce, type: 2}
   BrickSound: {fileID: 8300000, guid: 0120db094ae92ba4aaa713763885f4a7, type: 3}
-  ObjectSound: {fileID: 8300000, guid: b808c89464e4f584aa7933e54f7f35b4, type: 3}
+  objectSounds:
+  - {fileID: 8300000, guid: f2665dbf9d44afe489b3579ce1487e47, type: 3}
+  - {fileID: 8300000, guid: a482229877b037f4d8cef6282c855691, type: 3}
+  - {fileID: 8300000, guid: 30ad45d80f9179043bb8aafe6ef2832f, type: 3}
+  - {fileID: 8300000, guid: 8c1d6eeafe44c28479bdf01bea3853f7, type: 3}
+  - {fileID: 8300000, guid: 07f797d1746fec64291c1fbd5f38554f, type: 3}
   baseColor: {r: 1, g: 0.9453259, b: 0.9292453, a: 1}
   maxColorDistance: 0.1
   proximityRadius: 1
@@ -694,7 +699,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 200
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
